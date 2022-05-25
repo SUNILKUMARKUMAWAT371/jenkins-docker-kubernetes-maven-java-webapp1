@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('SCM') {
             steps {
-                git 'https://github.com/vimallinuxworld13/jenkins-docker-maven-java-webapp.git'
+                git 'https://github.com/SUNILKUMARKUMAWAT371/jenkins-docker-kubernetes-maven-java-webapp1.git'
                 
             }
             
@@ -24,8 +24,7 @@ pipeline {
         
         stage('Build Docker OWN image') {
             steps {
-                sh "sudo docker build -t  vimal13/javaweb:${BUILD_TAG}  ."
-                //sh 'whoami'
+                sh "sudo docker build -t  sunilkumawat/javaweb:${BUILD_TAG}  ."
             }
             
         }
@@ -34,12 +33,12 @@ pipeline {
         stage('Push Image to Docker HUB') {
             steps {
                 
-                withCredentials([string(credentialsId: 'DOCKER_HUB_PWD', variable: 'DOCKER_HUB_PASS_CODE')]) {
-    // some block
-                 sh "sudo docker login -u vimal13 -p $DOCKER_HUB_PASS_CODE"
-}
+               withCredentials([string(credentialsId: 'DOCKER_HUB_PWD', variable: 'DOCKER_HUB_PASS_CODE')]) {
+   
+                    sh "sudo docker login -u sunilkumawat -p $DOCKER_HUB_PASS_CODE"
+                }
                
-               sh "sudo docker push vimal13/javaweb:${BUILD_TAG}"
+               sh "sudo docker push sunilkumawat/javaweb:${BUILD_TAG}"
             }
             
         }
@@ -48,7 +47,7 @@ pipeline {
         stage('Deploy webAPP in DEV Env') {
             steps {
                 sh 'sudo docker rm -f myjavaapp'
-                sh "sudo docker run  -d  -p  8080:8080 --name myjavaapp   vimal13/javaweb:${BUILD_TAG}"
+                sh "sudo docker run  -d  -p  8080:8080 --name myjavaapp   sunilkumawat/javaweb:${BUILD_TAG}"
                 //sh 'whoami'
             }
             
@@ -61,7 +60,7 @@ pipeline {
                sshagent(['QA_ENV_SSH_CRED']) {
     
                     sh "ssh  -o  StrictHostKeyChecking=no ec2-user@13.233.100.238 sudo docker rm -f myjavaapp"
-                    sh "ssh ec2-user@13.233.100.238 sudo docker run  -d  -p  8080:8080 --name myjavaapp   vimal13/javaweb:${BUILD_TAG}"
+                    sh "ssh ec2-user@13.233.100.238 sudo docker run  -d  -p  8080:8080 --name myjavaapp   sunilkumawat/javaweb:${BUILD_TAG}"
                 }
 
             }
@@ -115,10 +114,10 @@ pipeline {
     
                     
                     sh "ssh  -o  StrictHostKeyChecking=no ec2-user@13.232.250.244 sudo kubectl  delete    deployment myjavawebapp"
-                    sh "ssh  ec2-user@13.232.250.244 sudo kubectl  create    deployment myjavawebapp  --image=vimal13/javaweb:${BUILD_TAG}"
-                    sh "ssh ec2-user@13.232.250.244 sudo wget https://raw.githubusercontent.com/vimallinuxworld13/jenkins-docker-maven-java-webapp/master/webappsvc.yml"
+                    sh "ssh  ec2-user@13.232.250.244 sudo kubectl  create    deployment myjavawebapp  --image=sunilkumawat/javaweb:${BUILD_TAG}"
+                    sh "ssh ec2-user@13.232.250.244 sudo wget https://raw.githubusercontent.com/SUNILKUMARKUMAWAT371/jenkins-docker-kubernetes-maven-java-webapp1/master/webappsvc.yml"
                     sh "ssh ec2-user@13.232.250.244 sudo kubectl  apply -f webappsvc.yml"
-                    sh "ssh ec2-user@13.232.250.244 sudo kubectl  scale deployment myjavawebapp --replicas=5"
+                    sh "ssh ec2-user@13.232.250.244 sudo kubectl  scale deployment myjavawebapp --replicas=7"
                 }
 
             }
@@ -143,7 +142,7 @@ pipeline {
          }
          failure {
              echo "OMG ! The build failed"
-             mail bcc: '', body: 'hi check this ..', cc: '', from: '', replyTo: '', subject: 'job ete fail', to: 'vdaga@lwindia.com'
+             mail bcc: '', body: 'hi check this ..', cc: '', from: '', replyTo: '', subject: 'job ete fail', to: 'sunilkumarkumawat371@gmail.com'
          }
      }
 
